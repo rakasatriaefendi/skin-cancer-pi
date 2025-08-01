@@ -3,12 +3,14 @@ import streamlit as st
 from PIL import Image
 import numpy as np
 import tensorflow as tf
-import tensorflow_hub as hub
 import matplotlib.pyplot as plt
 from fpdf import FPDF
 import io
+from tensorflow.keras.applications.xception import preprocess_input  # Import preprocess_input
 
 st.set_page_config(page_title="Skin Cancer Classifier", layout="wide")
+
+print(tf.__version__)
 
 # ====== [LABEL & PENJELASAN] ======
 folder_to_label = {
@@ -76,7 +78,13 @@ disease_info = {
 # ====== [LOAD MODEL] ======
 @st.cache_resource
 def load_model():
-    return tf.keras.models.load_model("trained_model.h5", custom_objects={'KerasLayer': hub.KerasLayer})
+    # Coba memuat model dari format .keras
+    try:
+        return tf.keras.models.load_model("trained_model.h5", compile=False)
+    except Exception as e:
+        st.error(f"Error loading model: {e}")
+        return None
+        
 model = load_model()
 
 # ====== [UI - JUDUL & UPLOAD] ======
@@ -96,6 +104,7 @@ if uploaded_file is not None:
     with col2:
         resized_image = image.resize((224, 224))
         img_array = np.array(resized_image) / 255.0
+        img_array = preprocess_input(img_array)  # Gunakan preprocess_input
         img_array = np.expand_dims(img_array, axis=0)
 
         prediction = model.predict(img_array)
