@@ -3,6 +3,7 @@ import streamlit as st
 from PIL import Image
 import numpy as np
 import tensorflow as tf
+import tensorflow_hub as hub
 import matplotlib.pyplot as plt
 from fpdf import FPDF
 import io
@@ -75,7 +76,7 @@ disease_info = {
 # ====== [LOAD MODEL] ======
 @st.cache_resource
 def load_model():
-    return tf.keras.models.load_model("trained_model.h5", custom_objects={'KerasLayer': tf.keras.layers.Layer})
+    return tf.keras.models.load_model("trained_model.h5", custom_objects={'KerasLayer': hub.KerasLayer})
 model = load_model()
 
 # ====== [UI - JUDUL & UPLOAD] ======
